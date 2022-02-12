@@ -1,6 +1,6 @@
 /*
 Slacker
-Version 1.1.0
+Version 1.2.0
 https://github.com/uCBill/Slacker
 Linux like watchface by Bill Eichner
 
@@ -16,6 +16,7 @@ https://watchy.sqfmi.com
 
 #include <Watchy.h> //include the Watchy library
 #include "LiberationSansNarrow_Bold8pt7b.h"
+#include "Teko_Regular20pt7b.h"
 #include "prompt.h"
 #include "settings.h"
 
@@ -27,6 +28,7 @@ class WatchFace : public Watchy { //inherit and extend Watchy class
       int16_t  x1, y1;
       uint16_t w, h;
       String textstring;
+      int temp;
       bool light = true; // left this here if someone wanted to tweak for dark
 
       //resets step counter at midnight everyday
@@ -49,7 +51,7 @@ class WatchFace : public Watchy { //inherit and extend Watchy class
       display.setCursor(0, 23);
       display.print("$ ls -l");
       display.setCursor(0, 36);
-      display.print("total (steps)");//use step # for total 
+      display.print("total (steps)");//use step # for total
       display.setCursor(0, 49);
       display.print("4 drwxr-xr-x 5 sk sk 4K Jn 1 Dcs");
       display.setCursor(0, 62);
@@ -70,7 +72,8 @@ class WatchFace : public Watchy { //inherit and extend Watchy class
       textstring += " ";
       textstring += currentTime.Year + 1970;
       textstring += " ";
-            
+      
+      
       //draw time
       display.setFont(&LiberationSansNarrow_Bold8pt7b);
      if (currentTime.Hour > 0 && currentTime.Hour < 10) {
@@ -105,12 +108,45 @@ class WatchFace : public Watchy { //inherit and extend Watchy class
 
       display.setCursor(0, 102);
       display.print(textstring);
+
+      //drawTimeBold
+      display.setFont(&Teko_Regular20pt7b);
+      if (currentTime.Hour > 0 && currentTime.Hour <= 12) {
+        textstring = currentTime.Hour;
+      } else if (currentTime.Hour < 1) {
+        textstring = 12;
+      } else {
+        textstring = ((currentTime.Hour+11)%12)+1;
+      }
+
+      textstring += ":";
+      if (currentTime.Minute < 10) {
+        textstring += "0";
+      } else {
+        textstring += "";
+      }
+      textstring += currentTime.Minute;
+
+      //this section adds AM or PM to the display
+      if (currentTime.Hour >= 12) {
+        textstring += "PM";
+      } else {
+        textstring += "AM";
+    }
+
+      display.setCursor(107, 23);
+      display.print(textstring);
+      
+
       
       // draw battery
       display.setFont(&LiberationSansNarrow_Bold8pt7b);
      float VBAT = getBatteryVoltage();
-     if(VBAT > 4.1){
+     if(VBAT > 4.2){
         textstring ="100%";
+     }
+     else if(VBAT > 4.1 && VBAT <= 4.2){
+        textstring = "99%";
      }
      else if(VBAT > 4.08 && VBAT <= 4.1){
         textstring = "95%";
@@ -197,10 +233,9 @@ class WatchFace : public Watchy { //inherit and extend Watchy class
       //draw steps
       display.setFont(&LiberationSansNarrow_Bold8pt7b);
       textstring = sensor.getCounter();
-      textstring += "";
       display.getTextBounds(textstring, 0, 0, &x1, &y1, &w, &h);
       display.setCursor(75, 36);
-      display.setTextColor(light ? GxEPD_BLACK: GxEPD_WHITE);
+      display.setTextColor(light ? GxEPD_BLACK : GxEPD_WHITE);
       display.print(textstring);
 
 
