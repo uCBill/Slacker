@@ -1,8 +1,9 @@
 /*
 Slacker
-Version 1.2.0
+Version 1.2.1
 https://github.com/uCBill/Slacker
 Linux like watchface by Bill Eichner
+Daylight Savings Time is configured in the settings.h section
 
 Based on Bahn-for-Watchy
 https://github.com/BraininaBowl/Bahn-for-Watchy
@@ -101,10 +102,11 @@ class WatchFace : public Watchy { //inherit and extend Watchy class
 
       //this section adds AM or PM to the display
       if (currentTime.Hour >= 12) {
-        textstring += " PM EST";
+        textstring += " PM EDT";//List of US Time Zones: EST, CST, MST, PST, AKST
       } else {
-        textstring += " AM EST";
+        textstring += " AM EDT";//List of US Daylight Savings Time Zones: EDT, CDT, MDT, PDT, AKDT
 	  }
+   //To change Time Zones, including Daylight Savings Time, see the settings.h section
 
       display.setCursor(0, 102);
       display.print(textstring);
@@ -141,70 +143,15 @@ class WatchFace : public Watchy { //inherit and extend Watchy class
       
       // draw battery
       display.setFont(&LiberationSansNarrow_Bold8pt7b);
+     int8_t batteryLevel = 0;
      float VBAT = getBatteryVoltage();
-     if(VBAT > 4.2){
-        textstring ="100%";
+
+     if(VBAT >= 4.2){
+        batteryLevel = 100.0;
      }
-     else if(VBAT > 4.1 && VBAT <= 4.2){
-        textstring = "99%";
-     }
-     else if(VBAT > 4.08 && VBAT <= 4.1){
-        textstring = "95%";
-     }
-     else if(VBAT > 4.06 && VBAT <= 4.08){
-        textstring = "90%";
-     }
-     else if(VBAT > 4.04 && VBAT <= 4.06){
-        textstring = "85%";
-     }    
-     else if(VBAT > 4.02 && VBAT <= 4.04){
-        textstring = "80%";
-     }    
-     else if(VBAT > 4.00 && VBAT <= 4.02){
-        textstring = "75%";
-     }    
-     else if(VBAT > 3.98 && VBAT <= 4.00){
-        textstring = "70%";
-     }    
-     else if(VBAT > 3.96 && VBAT <= 3.98){
-        textstring = "65%";
-     }
-     else if(VBAT > 3.94 && VBAT <= 3.96){
-        textstring = "60%";
-     }    
-     else if(VBAT > 3.92 && VBAT <= 3.94){
-        textstring = "55%";
-     }    
-     else if(VBAT > 3.90 && VBAT <= 3.92){
-        textstring = "45%";
-     }    
-     else if(VBAT > 3.88 && VBAT <= 3.90){
-        textstring = "40%";
-     }    
-     else if(VBAT > 3.86 && VBAT <= 3.88){
-        textstring = "35%";
-     }
-     else if(VBAT > 3.84 && VBAT <= 3.86){
-        textstring = "30%";
-     }    
-     else if(VBAT > 3.82 && VBAT <= 3.84){
-        textstring = "25%";
-     }    
-     else if(VBAT > 3.80 && VBAT <= 3.82){
-        textstring = "20%";
-     }    
-     else if(VBAT > 3.78 && VBAT <= 3.80){
-        textstring = "15%";
-     }    
-     else if(VBAT > 3.76 && VBAT <= 3.78){
-        textstring = "10%";
-     }
-     else if(VBAT > 3.74 && VBAT <= 3.76){
-        textstring = "5%";
-     }    
-     else if(VBAT <= 3.73){
-        textstring = "1%";
-     }
+     else if (VBAT >= 3.3) {
+        batteryLevel = 100.0*(VBAT-3.3)/0.9;
+    }
       display.getTextBounds(textstring, 0, 0, &x1, &y1, &w, &h);
       display.setCursor(0, 116);
       display.print("sk@darkstar:/~");
@@ -217,7 +164,9 @@ class WatchFace : public Watchy { //inherit and extend Watchy class
       display.setCursor(0, 157);
       display.print("percentage:");
       display.setCursor(120, 157);
-      display.print(textstring);
+      display.print(batteryLevel); 
+      display.setCursor(143, 157);
+      display.print("%"); 
       display.setCursor(0, 171);
       display.print("technology:");
       display.setCursor(120, 171);
